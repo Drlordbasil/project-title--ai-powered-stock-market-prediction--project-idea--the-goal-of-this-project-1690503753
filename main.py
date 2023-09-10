@@ -12,9 +12,11 @@ import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 def collect_stock_data(stock_symbol, start_date, end_date):
     stock_data = yf.download(stock_symbol, start_date, end_date)
     return stock_data
+
 
 def collect_news_sentiment(news_articles):
     sid = SentimentIntensityAnalyzer()
@@ -23,11 +25,14 @@ def collect_news_sentiment(news_articles):
         sentiment_scores.append(sid.polarity_scores(article))
     return sentiment_scores
 
+
 def preprocess_data(stock_data, sentiment_scores):
     stock_data['Date'] = stock_data.index
-    stock_data['Sentiment Score'] = [score['compound'] for score in sentiment_scores]
+    stock_data['Sentiment Score'] = [score['compound']
+                                     for score in sentiment_scores]
     stock_data = stock_data.dropna()
     return stock_data
+
 
 def create_input_features(stock_data):
     features = stock_data[['Open', 'High', 'Low', 'Volume', 'Sentiment Score']]
@@ -35,10 +40,12 @@ def create_input_features(stock_data):
     scaled_features = scaler.fit_transform(features)
     return scaled_features
 
+
 def create_output_labels(stock_data, prediction_period):
     labels = stock_data['Close'].shift(-prediction_period)
     labels = labels[:-prediction_period]
     return labels
+
 
 def build_lstm_model(input_shape):
     model = Sequential()
@@ -47,10 +54,14 @@ def build_lstm_model(input_shape):
     model.add(Dense(units=1))
     return model
 
+
 def train_model(model, X_train, y_train):
     model.compile(optimizer=Adam(), loss='mean_squared_error')
-    early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
-    model.fit(X_train, y_train, epochs=100, batch_size=32, validation_split=0.2, callbacks=[early_stopping])
+    early_stopping = EarlyStopping(
+        monitor='val_loss', patience=10, restore_best_weights=True)
+    model.fit(X_train, y_train, epochs=100, batch_size=32,
+              validation_split=0.2, callbacks=[early_stopping])
+
 
 def evaluate_model(model, X_test, y_test):
     predictions = model.predict(X_test)
@@ -58,15 +69,19 @@ def evaluate_model(model, X_test, y_test):
     rmse = np.sqrt(mse)
     return rmse
 
+
 def visualize_predictions(actual_prices, predicted_prices):
     plt.figure(figsize=(12, 6))
-    plt.plot(actual_prices.index, actual_prices, label='Actual Prices', color='blue')
-    plt.plot(predicted_prices.index, predicted_prices, label='Predicted Prices', color='red')
+    plt.plot(actual_prices.index, actual_prices,
+             label='Actual Prices', color='blue')
+    plt.plot(predicted_prices.index, predicted_prices,
+             label='Predicted Prices', color='red')
     plt.title('Stock Price Prediction')
     plt.xlabel('Date')
     plt.ylabel('Price')
     plt.legend()
     plt.show()
+
 
 def generate_recommendation(prediction, threshold=0.03):
     if prediction >= threshold:
@@ -75,6 +90,7 @@ def generate_recommendation(prediction, threshold=0.03):
         return 'Sell'
     else:
         return 'Hold'
+
 
 # Set project parameters
 stock_symbol = 'AAPL'
@@ -97,7 +113,8 @@ input_features = create_input_features(processed_data)
 output_labels = create_output_labels(processed_data, prediction_period)
 
 # Step 5: Train-Test Split
-X_train, X_test, y_train, y_test = train_test_split(input_features, output_labels, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    input_features, output_labels, test_size=0.2, random_state=42)
 
 # Step 6: Model Training
 model = build_lstm_model(input_shape=(X_train.shape[1], X_train.shape[2]))
