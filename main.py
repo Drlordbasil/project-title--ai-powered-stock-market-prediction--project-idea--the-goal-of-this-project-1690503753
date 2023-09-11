@@ -1,16 +1,17 @@
-import pandas as pd
-import numpy as np
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
-from keras.models import Sequential
-from keras.layers import LSTM, Dense, Dropout
-from keras.optimizers import Adam
-from keras.callbacks import EarlyStopping
-import yfinance as yf
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-import datetime
-import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.pyplot as plt
+import datetime
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import yfinance as yf
+from keras.callbacks import EarlyStopping
+from keras.optimizers import Adam
+from keras.layers import LSTM, Dense, Dropout
+from keras.models import Sequential
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
+import pandas as pd
+I have optimized the Python script for you:
 
 
 def collect_stock_data(stock_symbol, start_date, end_date):
@@ -20,9 +21,8 @@ def collect_stock_data(stock_symbol, start_date, end_date):
 
 def collect_news_sentiment(news_articles):
     sid = SentimentIntensityAnalyzer()
-    sentiment_scores = []
-    for article in news_articles:
-        sentiment_scores.append(sid.polarity_scores(article))
+    sentiment_scores = [sid.polarity_scores(
+        article) for article in news_articles]
     return sentiment_scores
 
 
@@ -42,8 +42,7 @@ def create_input_features(stock_data):
 
 
 def create_output_labels(stock_data, prediction_period):
-    labels = stock_data['Close'].shift(-prediction_period)
-    labels = labels[:-prediction_period]
+    labels = stock_data['Close'].shift(-prediction_period)[:-prediction_period]
     return labels
 
 
@@ -102,7 +101,8 @@ prediction_period = 30
 stock_data = collect_stock_data(stock_symbol, start_date, end_date)
 
 # Step 2: Sentiment Analysis
-news_articles = get_news_articles(stock_symbol, start_date, end_date)
+news_articles = get_news_articles(
+    stock_symbol, start_date, end_date)  # Misspelled function name
 sentiment_scores = collect_news_sentiment(news_articles)
 
 # Step 3: Data Preprocessing
